@@ -97,13 +97,16 @@ loadMore.addEventListener("click", async () => {
                 position: 'bottomCenter'
             });
         }
+        else if (totalLoadedImages < totalHits) {
+            showLoadMoreButton(loadMore)
+        }
+        
     }  catch (error) {
         iziToast.error({ message: 'Помилка сервера!', position: 'topRight' });
         console.error("Помилка при завантаженні:", error);
     } finally {
         hideLoader(loaderElement);
         loadMore.disabled = false;
-        showLoadMoreButton(loadMore)
     }
 });
 
