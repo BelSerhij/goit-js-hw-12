@@ -14,7 +14,7 @@ const loaderElement = document.querySelector('.loader');
 const loadMore = document.querySelector('.load-more');
 
 let page = 1;
-let perPage = 15;
+const perPage = 15;
 let currentQuery = ""
 
 form.addEventListener('submit', async (event) => {
@@ -32,7 +32,7 @@ form.addEventListener('submit', async (event) => {
     showLoader(loaderElement);
 
     try {
-        const data = await getImagesByQuery(currentQuery, page, perPage);
+        const data = await getImagesByQuery(currentQuery, page);
             const images = data.hits;
             const totalHits = data.totalHits;
         
@@ -66,20 +66,25 @@ form.addEventListener('submit', async (event) => {
 loadMore.addEventListener("click", async () => {
     page += 1;
     showLoader(loaderElement);
+    hideLoadMoreButton(loadMore)
     loadMore.disabled = true;
 
   try {
-    const data = await getImagesByQuery(currentQuery, page, perPage);
+    const data = await getImagesByQuery(currentQuery, page);
     const images = data.hits;
     const totalHits = data.totalHits;
       
     createGallery(images, galleryContainer);
       
-      window.scrollBy({
-           top: 500,
-           behavior: "smooth",
-      }); 
-      
+     const galleryItem = document.querySelector(".gallery-item"); 
+      if (galleryItem) {
+          const { height } = galleryItem.getBoundingClientRect();
+            
+          window.scrollBy({
+              top: height * 2,
+              behavior: "smooth",
+          });
+      }
     if (page > 1) {
         loadMore.textContent = "Fetch more posts";
     }
@@ -92,11 +97,13 @@ loadMore.addEventListener("click", async () => {
                 position: 'bottomCenter'
             });
         }
-    } catch (error) {
+    }  catch (error) {
+        iziToast.error({ message: 'Помилка сервера!', position: 'topRight' });
         console.error("Помилка при завантаженні:", error);
     } finally {
         hideLoader(loaderElement);
         loadMore.disabled = false;
+        showLoadMoreButton(loadMore)
     }
 });
 
