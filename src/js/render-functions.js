@@ -48,15 +48,3 @@ export function updateLoadMoreButton(btn, { isVisible, isLoading, isEnd }) {
         btn.classList.add('is-hidden');
     }
 }
-
-export function smoothScroll() {
-    const galleryItem = document.querySelector(".gallery-item");
-    if (galleryItem) {
-        const { height } = galleryItem.getBoundingClientRect();
-        window.scrollBy({
-            top: height * 2,
-            behavior: "smooth",
-        });
-    }
-}
-

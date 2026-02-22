@@ -1,5 +1,5 @@
 import { getImagesByQuery } from './js/pixabay-api.js'; 
-import { createGallery, clearGallery, toggleLoader, updateLoadMoreButton, smoothScroll} from './js/render-functions.js'; 
+import { createGallery, clearGallery, toggleLoader, updateLoadMoreButton} from './js/render-functions.js'; 
 
 import iziToast from "izitoast";
 import "izitoast/dist/css/iziToast.min.css";
@@ -72,7 +72,15 @@ loadMore.addEventListener("click", async () => {
     const totalHits = data.totalHits;
       
       createGallery(images, galleryContainer);
-      smoothScroll(); // Автоматичний скрол
+       
+       const galleryItem = document.querySelector(".gallery-item");
+        if (galleryItem) {
+            const { height } = galleryItem.getBoundingClientRect();
+            window.scrollBy({
+                top: height * 2,
+                behavior: "smooth",
+            });
+        }
       
      const isEnd = page * perPage >= data.totalHits;
       if (isEnd) {
