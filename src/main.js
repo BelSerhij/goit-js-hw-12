@@ -14,7 +14,7 @@ const loaderElement = document.querySelector('.loader');
 const loadMore = document.querySelector('.load-more');
 
 let page = 1;
-let perPage = 6;
+let perPage = 15;
 let currentQuery = ""
 
 form.addEventListener('submit', async (event) => {
