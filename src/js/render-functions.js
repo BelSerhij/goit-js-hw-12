@@ -29,19 +29,34 @@ export function createGallery(images, container) {
 export function clearGallery(container) {
     container.innerHTML = '';
 }
-
-export function showLoader(loaderElement) {
-    loaderElement.style.display = 'block';
+export function toggleLoader(loader, isVisible) {
+    isVisible ? loader.classList.remove('is-hidden') : loader.classList.add('is-hidden');
 }
 
-export function hideLoader(loaderElement) {
-    loaderElement.style.display = 'none';
+// Керування кнопкою "Load More" (стан, текст, видимість)
+export function updateLoadMoreButton(btn, { isVisible, isLoading, isEnd }) {
+    if (isVisible !== undefined) {
+        isVisible ? btn.classList.remove('is-hidden') : btn.classList.add('is-hidden');
+    }
+    
+    if (isLoading !== undefined) {
+        btn.disabled = isLoading;
+        btn.textContent = isLoading ? "Loading..." : "Load more";
+    }
+
+    if (isEnd) {
+        btn.classList.add('is-hidden');
+    }
 }
 
-export function showLoadMoreButton(loadMore) {
-    loadMore.style.display = 'flex';
+export function smoothScroll() {
+    const galleryItem = document.querySelector(".gallery-item");
+    if (galleryItem) {
+        const { height } = galleryItem.getBoundingClientRect();
+        window.scrollBy({
+            top: height * 2,
+            behavior: "smooth",
+        });
+    }
 }
 
-export function hideLoadMoreButton(loadMore) {
-    loadMore.style.display = 'none';
-}

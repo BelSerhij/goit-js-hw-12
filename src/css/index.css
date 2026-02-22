@@ -38,7 +38,9 @@ input:focus {
 }
 
 .load-more{
-    display: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     margin: 20px auto;
     padding: 12px 24px;
     border: none;
@@ -89,6 +91,9 @@ input:focus {
     display: block;
     
 }
+.is-hidden {
+    display: none !important;
+}
 
 .info {
     display: flex;
@@ -108,6 +113,7 @@ input:focus {
 
 
 .loader {
+    display: block;
     width: 48px;
     height: 48px;
     border: 5px solid #FFF;

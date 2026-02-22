@@ -1,8 +1,5 @@
 import { getImagesByQuery } from './js/pixabay-api.js'; 
-import { createGallery, clearGallery, showLoader, hideLoader, showLoadMoreButton, hideLoadMoreButton } from './js/render-functions.js'; 
-
-import SimpleLightbox from "simplelightbox";
-import "simplelightbox/dist/simple-lightbox.min.css";
+import { createGallery, clearGallery, toggleLoader, updateLoadMoreButton, smoothScroll} from './js/render-functions.js'; 
 
 import iziToast from "izitoast";
 import "izitoast/dist/css/iziToast.min.css";
@@ -28,8 +25,8 @@ form.addEventListener('submit', async (event) => {
 
     page = 1;
     clearGallery(galleryContainer);
-    hideLoadMoreButton(loadMore);
-    showLoader(loaderElement);
+    updateLoadMoreButton(loadMore, { isVisible: false }); // Ховаємо через функцію
+    toggleLoader(loaderElement, true); // Показуємо лоадер через функцію
 
     try {
         const data = await getImagesByQuery(currentQuery, page);
@@ -46,10 +43,11 @@ form.addEventListener('submit', async (event) => {
 
         createGallery(images, galleryContainer);
         input.value = ''; 
+        
         if (totalHits > perPage) {
-            showLoadMoreButton(loadMore);
-            loadMore.textContent = "Load more";
-        } else if (totalHits > 0) {
+            updateLoadMoreButton(loadMore, { isVisible: true, isLoading: false });
+            // loadMore.textContent = "Load more";
+        } else {
             iziToast.info({ message: "We're sorry, but you've reached the end of search results." });
         }
        
@@ -59,54 +57,35 @@ form.addEventListener('submit', async (event) => {
         console.error(error);
     }
     finally {
-        hideLoader(loaderElement);
+        toggleLoader(loaderElement, false);
     }
 });
 
 loadMore.addEventListener("click", async () => {
     page += 1;
-    showLoader(loaderElement);
-    hideLoadMoreButton(loadMore)
-    loadMore.disabled = true;
+    toggleLoader(loaderElement, true);
+    updateLoadMoreButton(loadMore, { isLoading: true }); // Інкапсульований стан завантаження
 
   try {
     const data = await getImagesByQuery(currentQuery, page);
     const images = data.hits;
     const totalHits = data.totalHits;
       
-    createGallery(images, galleryContainer);
+      createGallery(images, galleryContainer);
+      smoothScroll(); // Автоматичний скрол
       
-     const galleryItem = document.querySelector(".gallery-item"); 
-      if (galleryItem) {
-          const { height } = galleryItem.getBoundingClientRect();
-            
-          window.scrollBy({
-              top: height * 2,
-              behavior: "smooth",
-          });
-      }
-    if (page > 1) {
-        loadMore.textContent = "Fetch more posts";
-    }
-      
-    const totalLoadedImages = page * perPage;
-        if (totalLoadedImages >= totalHits) {
-            hideLoadMoreButton(loadMore);
-            iziToast.info({
-                message: "We're sorry, but you've reached the end of search results.",
-                position: 'bottomCenter'
-            });
+     const isEnd = page * perPage >= data.totalHits;
+      if (isEnd) {
+            updateLoadMoreButton(loadMore, { isEnd: true });
+            iziToast.info({ message: "We're sorry, but you've reached the end of search results." });
+        } else {
+            updateLoadMoreButton(loadMore, { isLoading: false });
         }
-        else if (totalLoadedImages < totalHits) {
-            showLoadMoreButton(loadMore)
-        }
-        
-    }  catch (error) {
-        iziToast.error({ message: 'Помилка сервера!', position: 'topRight' });
-        console.error("Помилка при завантаженні:", error);
+    } catch (error) {
+        iziToast.error({ message: 'Помилка завантаження!' });
+        updateLoadMoreButton(loadMore, { isLoading: false });
     } finally {
-        hideLoader(loaderElement);
-        loadMore.disabled = false;
+        toggleLoader(loaderElement, false);
     }
 });
 
